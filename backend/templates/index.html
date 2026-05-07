@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FractureAI — Apoyo Diagnostico</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --navy: #0f2744;
+      --navy2: #1a3a5c;
+      --sky: #e8f2fb;
+      --sky2: #d0e6f7;
+      --white: #ffffff;
+      --offwhite: #f7f8fa;
+      --border: #e2e8f0;
+      --text: #1a2332;
+      --text2: #4a5568;
+      --text3: #8a95a3;
+      --green: #1a6b3c;
+      --green-bg: #edf7f2;
+      --green-border: #b8dfc8;
+      --red: #b91c1c;
+      --red-bg: #fef2f2;
+      --red-border: #fecaca;
+      --amber: #92400e;
+      --amber-bg: #fffbeb;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    body {
+      background: var(--offwhite);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--navy);
+      padding: 0 48px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-mark {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #2d6a9f, #4a90d9);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 2px 8px rgba(74, 144, 217, 0.4);
+    }
+
+    .logo-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: #fff;
+    }
+
+    .logo-tagline {
+      font-size: 11px;
+      color: #7a9ab8;
+      font-weight: 300;
+    }
+
+    .status-dot {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: #7a9ab8;
+    }
+
+    .dot-live {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 6px #34d399;
+      animation: pulse-dot 2s ease infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.5
+      }
+    }
+
+    .doctor-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: #c8daea;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 24px;
+    }
+
+    .page-title {
+      margin-bottom: 32px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .page-title h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .page-title p {
+      color: var(--text2);
+      font-size: 14px;
+      font-weight: 300;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        padding: 0 20px;
+      }
+    }
+
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .panel-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .panel-body {
+      padding: 24px;
+    }
+
+    .upload-area {
+      border: 2px dashed #c8d8e8;
+      border-radius: 14px;
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--sky);
+      margin-bottom: 20px;
+    }
+
+    .upload-area:hover,
+    .upload-area.drag {
+      border-color: var(--navy2);
+      background: var(--sky2);
+    }
+
+    .upload-icon {
+      font-size: 40px;
+      margin-bottom: 14px;
+    }
+
+    .upload-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 5px;
+    }
+
+    .upload-sub {
+      font-size: 12px;
+      color: var(--text3);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .img-wrap {
+      display: none;
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #0a0f1a;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .img-badge {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      color: #9ac8e8;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+
+    .gradcam-layer {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      pointer-events: none;
+    }
+
+    .gradcam-layer.show {
+      opacity: 1;
+    }
+
+    .gradcam-legend {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .gradcam-legend.show {
+      display: flex;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+      color: #9ac8e8;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    .analyze-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--navy), var(--navy2));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(15, 39, 68, 0.3);
+    }
+
+    .analyze-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(15, 39, 68, 0.35);
+    }
+
+    .analyze-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .progress-wrap {
+      display: none;
+      margin-top: 14px;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      color: var(--text3);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--sky2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--navy), #4a90d9, var(--navy));
+      background-size: 200% 100%;
+      animation: shimmer 1.5s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0
+      }
+
+      100% {
+        background-position: -200% 0
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 40px;
+      color: var(--text3);
+    }
+
+    .empty-icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--text2);
+      margin-bottom: 8px;
+    }
+
+    .empty-sub {
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .result-wrap {
+      display: none;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .result-banner {
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .result-banner.fracture {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+    }
+
+    .result-banner.normal {
+      background: var(--green-bg);
+      border: 1px solid var(--green-border);
+    }
+
+    .result-emoji {
+      font-size: 44px;
+    }
+
+    .result-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .result-headline.fracture {
+      color: var(--red);
+    }
+
+    .result-headline.normal {
+      color: var(--green);
+    }
+
+    .result-sub {
+      font-size: 13px;
+      color: var(--text2);
+      font-weight: 300;
+    }
+
+    .confidence-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .conf-label {
+      font-size: 12px;
+      color: var(--text3);
+      white-space: nowrap;
+    }
+
+    .conf-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .conf-fill {
+      height: 100%;
+      border-radius: 3px;
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .conf-fill.fracture {
+      background: var(--red);
+    }
+
+    .conf-fill.normal {
+      background: var(--green);
+    }
+
+    .conf-pct {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .conf-pct.fracture {
+      color: var(--red);
+    }
+
+    .conf-pct.normal {
+      color: var(--green);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .chip {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chip-blue {
+      background: var(--sky);
+      color: var(--navy2);
+      border: 1px solid var(--sky2);
+    }
+
+    .chip-red {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red-border);
+    }
+
+    .chip-green {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+
+    .informe {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .informe-top {
+      background: var(--navy);
+      padding: 18px 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .informe-top-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      color: white;
+      margin-bottom: 3px;
+    }
+
+    .informe-top-sub {
+      font-size: 11px;
+      color: #7a9ab8;
+      font-weight: 300;
+    }
+
+    .informe-stamp {
+      font-size: 10px;
+      color: #5a7a9a;
+      text-align: right;
+      white-space: nowrap;
+      font-weight: 300;
+    }
+
+    .info-section {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .info-section:last-child {
+      border-bottom: none;
+    }
+
+    .info-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text3);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .info-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .info-bullet {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--navy2);
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+
+    .info-bullet-red {
+      background: var(--red);
+    }
+
+    .info-bullet-green {
+      background: var(--green);
+    }
+
+    .conclusion-box {
+      background: var(--amber-bg);
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+
+    .surgery-alert {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--red);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .disclaimer-box {
+      background: #f0f4f8;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--text3);
+      line-height: 1.6;
+      display: flex;
+      gap: 10px;
+    }
+
+    .error-box {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 13px;
+      color: var(--red);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-top: 12px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">
+      <div class="logo-mark">&#x1F9B4;</div>
+      <div>
+        <div class="logo-name">FractureAI</div>
+        <div class="logo-tagline">Sistema de Apoyo al Diagnostico Radiologico</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px">
+      <div class="status-dot">
+        <div class="dot-live"></div>Sistema activo
+      </div>
+      <div class="doctor-badge">&#x1F468;&#x200D;&#x2695;&#xFE0F; Dr. / Medico Especialista</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="page-title">
+      <h1>Analisis Radiografico</h1>
+      <p>Cargue la imagen de rayos X para obtener el informe de apoyo diagnostico generado por IA.</p>
+    </div>
+
+    <div class="layout">
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Imagen radiografica</span></div>
+          <div class="panel-body">
+
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+              <div class="upload-icon">&#x1FA7B;</div>
+              <div class="upload-title">Cargar imagen de rayos X</div>
+              <div class="upload-sub">Arrastre aqui o haga clic para seleccionar</div>
+              <div class="upload-sub" style="margin-top:4px">JPG / PNG</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*">
+
+            <div class="img-wrap" id="imgWrap">
+              <img id="previewImg" src="" alt="">
+              <canvas class="gradcam-layer" id="gradcamCanvas"></canvas>
+              <div class="img-badge" id="imgBadge">RAD-0000</div>
+              <div class="gradcam-legend" id="gradcamLegend">
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:#ff0000"></div>Alta activacion
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:#00ff00"></div>Media
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:#0000ff"></div>Baja
+                </div>
+              </div>
+            </div>
+
+            <button class="analyze-btn" id="analyzeBtn" onclick="analyze()" disabled>
+              Analizar imagen
+            </button>
+
+            <div class="progress-wrap" id="progressWrap">
+              <div class="progress-label" id="progressLabel">Enviando imagen al modelo...</div>
+              <div class="progress-bar">
+                <div class="progress-fill"></div>
+              </div>
+            </div>
+
+            <div id="errorBox" style="display:none" class="error-box">
+              <div>&#x26A0;</div>
+              <div id="errorMsg">Error al procesar la imagen.</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Informe de apoyo diagnostico</span>
+            <span id="resultTime" style="font-size:11px;color:var(--text3)"></span>
+          </div>
+          <div class="panel-body">
+
+            <div class="empty-state" id="emptyState">
+              <div class="empty-icon">&#x1F4CB;</div>
+              <div class="empty-title">Sin analisis activo</div>
+              <div class="empty-sub">Cargue una imagen de rayos X<br>y presione "Analizar imagen"<br>para obtener el
+                informe.</div>
+            </div>
+
+            <div class="result-wrap" id="resultWrap">
+              <div class="result-banner" id="resultBanner">
+                <div class="result-emoji" id="resultEmoji"></div>
+                <div style="flex:1">
+                  <div class="result-headline" id="resultHeadline"></div>
+                  <div class="result-sub" id="resultSub"></div>
+                  <div class="confidence-row">
+                    <div class="conf-label">Confianza del sistema</div>
+                    <div class="conf-bar">
+                      <div class="conf-fill" id="confFill"></div>
+                    </div>
+                    <div class="conf-pct" id="confPct"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chips" id="chipsWrap"></div>
+
+              <div class="informe">
+                <div class="informe-top">
+                  <div>
+                    <div class="informe-top-title">Informe Radiografico &mdash; Apoyo IA</div>
+                    <div class="informe-top-sub">Generado para revision del especialista tratante</div>
+                  </div>
+                  <div class="informe-stamp" id="informeStamp"></div>
+                </div>
+                <div id="informeContent"></div>
+              </div>
+
+              <div class="disclaimer-box">
+                <div>&#x2139;&#xFE0F;</div>
+                <div><strong style="color:var(--text2)">Nota importante:</strong> Este informe es generado por un
+                  sistema de inteligencia artificial con fines de apoyo diagnostico. El diagnostico definitivo, la
+                  interpretacion clinica y las decisiones terapeuticas son responsabilidad exclusiva del medico
+                  especialista. No reemplaza la consulta medica.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '/api/predict/';
+
+    let currentFile = null;
+    let isAnalyzing = false;
+
+    // Plantillas de respaldo (se usan si la API de IA no esta disponible)
+    const PLANTILLAS = {
+      fractura: {
+        hallazgos: [
+          'Se identifican signos radiologicos compatibles con fractura osea en la region evaluada.',
+          'Posible alteracion de la continuidad cortical del hueso afectado.',
+          'Se recomienda evaluacion complementaria con proyecciones adicionales para caracterizacion completa.',
+          'Partes blandas perilesionales con posible aumento de volumen compatible con edema/hematoma.'
+        ],
+        estructuras: [
+          'Estructuras adyacentes evaluadas en esta proyeccion.',
+          'Se recomienda valoracion de articulaciones vecinas para descartar compromiso asociado.'
+        ],
+        conclusion: 'El sistema de inteligencia artificial identifica hallazgos compatibles con fractura osea en esta imagen. Se recomienda evaluacion ortopedica presencial para confirmacion diagnostica y definicion del plan terapeutico.',
+        recomendaciones: [
+          'Evaluacion ortopedica presencial de forma prioritaria',
+          'Inmovilizacion del miembro afectado segun indicacion medica',
+          'Considerar proyecciones radiograficas complementarias para caracterizacion completa',
+          'Evitar carga de peso o movimiento del area afectada hasta valoracion especializada',
+          'No retomar actividad fisica hasta autorizacion del especialista'
+        ],
+        alertas: [
+          'Dolor intenso que no cede con analgesia habitual',
+          'Hormigueo, entumecimiento o perdida de fuerza (posible compromiso nervioso)',
+          'Inflamacion excesiva o deformidad progresiva visible'
+        ]
+      },
+      normal: {
+        hallazgos: [
+          'No se identifican lineas de fractura evidentes en la region evaluada en esta proyeccion.',
+          'Trabeculado oseo de aspecto conservado, sin zonas de condensacion o rarefaccion patologicas.',
+          'Superficies articulares con morfologia dentro de limites normales para esta proyeccion.',
+          'Espacios articulares sin alteraciones significativas radiologicamente visibles.'
+        ],
+        estructuras: [
+          'Estructuras oseas adyacentes sin hallazgos patologicos evidentes en esta proyeccion.',
+          'Partes blandas sin aumento de volumen significativo radiologicamente visible.'
+        ],
+        conclusion: 'No se identifican hallazgos radiologicos sugestivos de fractura osea en esta proyeccion. Si persiste la sintomatologia clinica, se recomienda correlacion con la exploracion fisica y considerar proyecciones adicionales o resonancia magnetica para descartar lesiones de partes blandas o fracturas ocultas.',
+        recomendaciones: [
+          'Correlacion clinica con los hallazgos de la exploracion fisica del especialista',
+          'Considerar proyecciones adicionales si persiste el dolor o la limitacion funcional',
+          'Resonancia magnetica si se sospecha lesion ligamentosa o fractura oculta',
+          'Seguimiento en consulta en 2-3 semanas si la sintomatologia no mejora'
+        ],
+        alertas: [
+          'Dolor que aumenta progresivamente con la carga o el movimiento',
+          'Aparicion de equimosis tardia en la zona afectada',
+          'Perdida progresiva de fuerza o limitacion funcional creciente'
+        ]
+      }
+    };
+
+    // ── Drag & drop ──
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('drag');
+      const f = e.dataTransfer.files[0];
+      if (f && f.type.startsWith('image/')) loadFile(f);
+    });
+    document.getElementById('fileInput').addEventListener('change', e => {
+      if (e.target.files[0]) loadFile(e.target.files[0]);
+    });
+
+    function loadFile(file) {
+      currentFile = file;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        document.getElementById('uploadArea').style.display = 'none';
+        const wrap = document.getElementById('imgWrap');
+        wrap.style.display = 'block';
+        document.getElementById('previewImg').src = ev.target.result;
+        document.getElementById('imgBadge').textContent = 'RAD-' + Math.floor(Math.random() * 9000 + 1000) + ' - Listo';
+        clearGradCAM();
+        document.getElementById('analyzeBtn').disabled = false;
+        document.getElementById('errorBox').style.display = 'none';
+        clearResult();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearResult() {
+      document.getElementById('emptyState').style.display = 'block';
+      document.getElementById('resultWrap').style.display = 'none';
+    }
+
+    function clearGradCAM() {
+      const canvas = document.getElementById('gradcamCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.classList.remove('show');
+      document.getElementById('gradcamLegend').classList.remove('show');
+    }
+
+    async function analyze() {
+      if (document.getElementById('analyzeBtn').textContent === 'Analizar otra imagen') {
+        currentFile = null;
+        document.getElementById('uploadArea').style.display = 'block';
+        document.getElementById('imgWrap').style.display = 'none';
+        document.getElementById('analyzeBtn').disabled = true;
+        document.getElementById('analyzeBtn').textContent = 'Analizar imagen';
+        document.getElementById('fileInput').value = '';
+        clearResult();
+        clearGradCAM();
+        return;
+      }
+
+      if (isAnalyzing || !currentFile) return;
+      isAnalyzing = true;
+
+      document.getElementById('analyzeBtn').disabled = true;
+      document.getElementById('progressWrap').style.display = 'block';
+      document.getElementById('errorBox').style.display = 'none';
+      clearResult();
+
+      const steps = [
+        'Enviando imagen al modelo...',
+        'Preprocesando radiografia...',
+        'Analizando con red neuronal ResNet50...',
+        'Generando mapa de activacion (Grad-CAM)...',
+        'Generando informe clinico con IA...'
+      ];
+      let i = 0;
+      const interval = setInterval(() => {
+        document.getElementById('progressLabel').textContent = steps[Math.min(i, steps.length - 1)];
+        i++;
+      }, 800);
+
+      try {
+        const formData = new FormData();
+        formData.append('imagen', currentFile);
+
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: formData
+        });
+
+        clearInterval(interval);
+
+        if (!response.ok) throw new Error('Error del servidor: ' + response.status);
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error);
+
+        document.getElementById('progressWrap').style.display = 'none';
+        showResult(data);
+
+      } catch (error) {
+        clearInterval(interval);
+        document.getElementById('progressWrap').style.display = 'none';
+        document.getElementById('errorBox').style.display = 'flex';
+        document.getElementById('errorMsg').textContent = 'Error: ' + error.message;
+        isAnalyzing = false;
+        document.getElementById('analyzeBtn').disabled = false;
+      }
+    }
+
+    function showResult(data) {
+      const fractura = data.fractura;
+      const confianza = data.confianza;
+      const informe = data.informe;
+
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('resultWrap').style.display = 'block';
+
+      const now = new Date().toLocaleString('es-CO', {
+        timeZone: 'America/Bogota',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+      document.getElementById('resultTime').textContent = now;
+      document.getElementById('informeStamp').innerHTML = now.replace(',', '<br>');
+
+      const banner = document.getElementById('resultBanner');
+      banner.className = 'result-banner ' + (fractura ? 'fracture' : 'normal');
+      document.getElementById('resultEmoji').textContent = fractura ? '\u{1F6A8}' : '✅';
+
+      const hl = document.getElementById('resultHeadline');
+      hl.textContent = fractura ? 'Fractura detectada' : 'Sin fractura detectada';
+      hl.className = 'result-headline ' + (fractura ? 'fracture' : 'normal');
+      document.getElementById('resultSub').textContent = fractura ? 'Hallazgo positivo' : 'Sin hallazgos patologicos';
+
+      const fill = document.getElementById('confFill');
+      const pct = document.getElementById('confPct');
+      fill.className = 'conf-fill ' + (fractura ? 'fracture' : 'normal');
+      pct.className = 'conf-pct ' + (fractura ? 'fracture' : 'normal');
+      pct.textContent = confianza.toFixed(1) + '%';
+      setTimeout(() => { fill.style.width = confianza + '%'; }, 100);
+
+      document.getElementById('chipsWrap').innerHTML =
+        '<span class="chip chip-blue">\u{1FA7B} Radiografia analizada</span>' +
+        '<span class="chip chip-blue">\u{1F916} Modelo CNN — ResNet50</span>' +
+        (fractura
+          ? '<span class="chip chip-red">⚠ Hallazgo positivo</span>'
+          : '<span class="chip chip-green">✓ Sin patologia osea visible</span>'
+        );
+
+      if (informe) {
+        document.getElementById('informeContent').innerHTML = renderInformeIA(informe, fractura);
+      } else {
+        const plantilla = fractura ? PLANTILLAS.fractura : PLANTILLAS.normal;
+        document.getElementById('informeContent').innerHTML = renderPlantilla(plantilla, fractura);
+      }
+
+      if (data.gradcam) {
+        setTimeout(() => drawGradCAMReal(data.gradcam), 600);
+      }
+
+      document.getElementById('imgBadge').textContent = fractura
+        ? 'RAD · ⚠ FRACTURA DETECTADA'
+        : 'RAD · ✓ SIN FRACTURA';
+      isAnalyzing = false;
+      document.getElementById('analyzeBtn').disabled = false;
+      document.getElementById('analyzeBtn').textContent = 'Analizar otra imagen';
+    }
+
+    function renderInformeIA(inf, fractura) {
+      let html = '';
+
+      if (inf.region || inf.hueso) {
+        html += '<div class="info-section">' +
+          '<div class="info-section-title">Region y hueso evaluado</div>' +
+          (inf.region ? '<div class="info-row"><div class="info-bullet"></div><div><strong>Region evaluada:</strong> ' + inf.region + '</div></div>' : '') +
+          (inf.hueso ? '<div class="info-row"><div class="info-bullet"></div><div><strong>Hueso posiblemente afectado:</strong> ' + inf.hueso + '</div></div>' : '') +
+          '</div>';
+      }
+
+      if (inf.hallazgos && inf.hallazgos.length) {
+        html += '<div class="info-section">' +
+          '<div class="info-section-title">Hallazgos orientativos</div>' +
+          inf.hallazgos.map(function (h) {
+            return '<div class="info-row"><div class="info-bullet' + (fractura ? ' info-bullet-red' : '') + '"></div><div>' + h + '</div></div>';
+          }).join('') +
+          '</div>';
+      }
+
+      if (inf.estructuras && inf.estructuras.length) {
+        html += '<div class="info-section">' +
+          '<div class="info-section-title">Estructuras asociadas</div>' +
+          inf.estructuras.map(function (e) {
+            return '<div class="info-row"><div class="info-bullet info-bullet-green"></div><div>' + e + '</div></div>';
+          }).join('') +
+          '</div>';
+      }
+
+      if (inf.conclusion) {
+        html += '<div class="info-section">' +
+          '<div class="info-section-title">Conclusion orientativa</div>' +
+          '<div class="conclusion-box">' + inf.conclusion + '</div>';
+        if (fractura) {
+          html += '<div class="surgery-alert"><div>⚠</div><div><strong>Se recomienda evaluacion ortopedica</strong> para confirmacion diagnostica y definicion del tratamiento.</div></div>';
+        }
+        html += '</div>';
+      }
+
+      if (inf.manejo) {
+        html += '<div class="info-section">' +
+          '<div class="info-section-title">Posible manejo medico</div>' +
+          '<div class="info-row"><div class="info-bullet"></div><div>' + inf.manejo + '</div></div>' +
+          '</div>';
+      }
+
+      if (inf.recuperacion) {
+        html += '<div class="info-section">' +
+          '<div class="info-section-title">Tiempo aproximado de recuperacion</div>' +
+          '<div class="info-row"><div class="info-bullet"></div><div>' + inf.recuperacion + '</div></div>' +
+          '</div>';
+      }
+
+      if (inf.recomendaciones && inf.recomendaciones.length) {
+        html += '<div class="info-section">' +
+          '<div class="info-section-title">Recomendaciones generales</div>' +
+          inf.recomendaciones.map(function (r, i) {
+            return '<div class="info-row"><div style="font-weight:700;color:var(--navy2);flex-shrink:0;font-size:13px">' + (i + 1) + '.</div><div>' + r + '</div></div>';
+          }).join('') +
+          '</div>';
+      }
+
+      if (inf.alertas && inf.alertas.length) {
+        html += '<div class="info-section">' +
+          '<div class="info-section-title">Signos de alarma a vigilar</div>' +
+          inf.alertas.map(function (a) {
+            return '<div class="info-row"><div class="info-bullet info-bullet-red"></div><div style="color:var(--red)">' + a + '</div></div>';
+          }).join('') +
+          '</div>';
+      }
+
+      return html;
+    }
+
+    function renderPlantilla(plantilla, fractura) {
+      return '<div class="info-section">' +
+        '<div class="info-section-title">Hallazgos radiologicos</div>' +
+        plantilla.hallazgos.map(function (h) {
+          return '<div class="info-row"><div class="info-bullet"></div><div>' + h + '</div></div>';
+        }).join('') +
+        '</div>' +
+        '<div class="info-section">' +
+        '<div class="info-section-title">Estructuras evaluadas</div>' +
+        plantilla.estructuras.map(function (e) {
+          return '<div class="info-row"><div class="info-bullet info-bullet-green"></div><div>' + e + '</div></div>';
+        }).join('') +
+        '</div>' +
+        '<div class="info-section">' +
+        '<div class="info-section-title">Conclusion</div>' +
+        '<div class="conclusion-box">' + plantilla.conclusion + '</div>' +
+        (fractura ? '<div class="surgery-alert"><div>⚠</div><div><strong>Se recomienda evaluacion ortopedica urgente</strong> para confirmacion diagnostica y definicion del tratamiento.</div></div>' : '') +
+        '</div>' +
+        '<div class="info-section">' +
+        '<div class="info-section-title">Recomendaciones</div>' +
+        plantilla.recomendaciones.map(function (r, i) {
+          return '<div class="info-row"><div style="font-weight:700;color:var(--navy2);flex-shrink:0;font-size:13px">' + (i + 1) + '.</div><div>' + r + '</div></div>';
+        }).join('') +
+        '</div>' +
+        '<div class="info-section">' +
+        '<div class="info-section-title">Signos de alarma a vigilar</div>' +
+        plantilla.alertas.map(function (a) {
+          return '<div class="info-row"><div class="info-bullet info-bullet-red"></div><div style="color:var(--red)">' + a + '</div></div>';
+        }).join('') +
+        '</div>';
+    }
+
+    function drawGradCAMReal(base64) {
+      const wrap = document.getElementById('imgWrap');
+      const canvas = document.getElementById('gradcamCanvas');
+      canvas.width = wrap.offsetWidth;
+      canvas.height = wrap.offsetHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const img = new Image();
+      img.onload = function () {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.classList.add('show');
+        document.getElementById('gradcamLegend').classList.add('show');
+      };
+      img.src = 'data:image/png;base64,' + base64;
+    }
+  </script>
+</body>
+
+</html>
