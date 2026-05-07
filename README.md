@@ -40,28 +40,122 @@ proyecto_ia/
 - ~500 imagenes de prueba
 - Clases: `fractured` (fractura) y `not fractured` (normal)
 
-## Instalacion Local
+## Guia Paso a Paso (Windows, nivel principiante)
 
-```bash
-# Crear entorno virtual
+Esta guia esta escrita para alguien que no ha levantado un proyecto de Python antes.
+
+### Paso 0: Que vas a instalar
+
+- Python 3.10 o 3.11
+- Git
+- Este repositorio
+- Dependencias de Python (se instalan con un comando)
+
+### Paso 1: Instalar Python
+
+1. Ve a [https://www.python.org/downloads/](https://www.python.org/downloads/) y descarga Python 3.10/3.11.
+2. Durante la instalacion, marca la casilla **Add Python to PATH**.
+3. Termina la instalacion.
+
+### Paso 2: Instalar Git
+
+1. Ve a [https://git-scm.com/download/win](https://git-scm.com/download/win).
+2. Instala con opciones por defecto.
+
+### Paso 3: Abrir PowerShell y comprobar que todo esta bien
+
+Ejecuta estos comandos:
+
+```powershell
+python --version
+pip --version
+git --version
+```
+
+Si los 3 muestran version, vas bien.
+
+### Paso 4: Descargar el proyecto
+
+En PowerShell, ejecuta:
+
+```powershell
+git clone https://github.com/BackSua/final-ia.git
+cd final-ia
+```
+
+### Paso 5: Crear el entorno virtual (importante)
+
+```powershell
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
+.\venv\Scripts\Activate.ps1
+```
 
-# Instalar dependencias
+Si te bloquea PowerShell, ejecuta primero:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+y vuelve a ejecutar `.\venv\Scripts\Activate.ps1`.
+
+### Paso 6: Instalar dependencias
+
+```powershell
+pip install --upgrade pip
 pip install -r requirements.txt
+```
 
-# Configurar variable de entorno para informes IA
-export ANTHROPIC_API_KEY="tu-api-key"  # Linux/Mac
-set ANTHROPIC_API_KEY=tu-api-key       # Windows
+Este paso puede tardar varios minutos por TensorFlow.
 
-# Ejecutar servidor de desarrollo
+### Paso 7: Configurar variable para informe IA (opcional)
+
+Solo si quieres generar informe con Claude:
+
+```powershell
+$env:ANTHROPIC_API_KEY="tu-api-key"
+```
+
+Si no configuras esto, la prediccion principal puede funcionar igual.
+
+### Paso 8: Iniciar la aplicacion
+
+```powershell
 cd backend
 python manage.py migrate
 python manage.py runserver
 ```
 
-Abrir en el navegador: http://127.0.0.1:8000
+Abre en tu navegador:
+
+`http://127.0.0.1:8000`
+
+### Paso 9: Probar que funciona
+
+1. Entra a la pagina.
+2. Sube una radiografia.
+3. Debes ver clasificacion y porcentaje de confianza.
+4. Si agregaste `ANTHROPIC_API_KEY`, tambien veras el informe orientativo.
+
+### Paso 10 (solo si vas a reentrenar): poner la data
+
+Para **usar la app**, no necesitas dataset local.
+Para **entrenar de nuevo** si necesitas descargar y ubicar la data.
+
+1. Descarga el dataset "Bone Fracture Binary Classification" de Kaggle.
+2. Descomprime el archivo.
+3. Copia la carpeta para que quede exactamente en esta ruta:
+
+`C:\proyecto_ia\data\Bone_Fracture_Binary_Classification\Bone_Fracture_Binary_Classification\`
+
+4. Verifica que existan estas carpetas:
+   - `train\fractured`
+   - `train\not fractured`
+   - `val\fractured`
+   - `val\not fractured`
+   - `test\fractured`
+   - `test\not fractured`
+
+Si no existe esa estructura, el entrenamiento falla.
 
 ## Entrenamiento del Modelo
 
@@ -95,15 +189,18 @@ El script genera:
 
 ## Despliegue en Render
 
-1. Subir el repositorio a GitHub
-2. Crear un nuevo Web Service en Render
-3. Conectar el repositorio
-4. Configurar las variables de entorno:
+1. Subir el repositorio a GitHub.
+2. Crear un nuevo **Web Service** en Render y conectar el repositorio.
+3. Verificar configuracion:
+   - Build Command: `./build.sh`
+   - Start Command (Procfile): `web: cd backend && gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120`
+4. Definir variables de entorno en Render:
    - `ANTHROPIC_API_KEY`: API key de Anthropic
-   - `DEBUG`: False
-   - `DJANGO_SECRET_KEY`: (se genera automaticamente)
-   - `ALLOWED_HOSTS`: .onrender.com
-5. Deploy automatico
+   - `DEBUG`: `False`
+   - `DJANGO_SECRET_KEY`: una clave segura (larga y aleatoria)
+   - `ALLOWED_HOSTS`: `.onrender.com`
+   - `CORS_ALLOW_ALL`: `True` o `False` segun politica
+5. Desplegar y validar el endpoint publico de la app.
 
 ## Autores
 
